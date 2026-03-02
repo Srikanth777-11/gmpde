@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Snake Game — Test Suite</title>
+    <style>
+        body { font-family: monospace; background: #1a1a2e; color: #fff; padding: 20px; }
+        .pass { color: #00ff88; }
+        .fail { color: #ff4757; }
+        .section { margin-top: 20px; font-size: 1.2em; color: #888; border-bottom: 1px solid #333; padding-bottom: 4px; }
+        .result { margin: 4px 0 4px 20px; }
+        #summary { margin-top: 30px; font-size: 1.3em; padding: 10px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>Snake Game — Test Suite</h1>
+    <!-- Hidden canvas needed by game.js DOM references -->
+    <div id="game-container" style="display:none;">
+        <canvas id="gameCanvas"></canvas>
+        <div id="start-overlay" class="overlay"></div>
+        <div id="gameover-overlay" class="overlay hidden">
+            <div class="overlay-content">
+                <span id="final-score">0</span>
+                <span id="final-high-score">0</span>
+            </div>
+        </div>
+        <div id="pause-overlay" class="overlay hidden"></div>
+    </div>
+    <div id="output"></div>
+    <div id="summary"></div>
+
+    <!-- Load game code first so functions are available -->
+    <script src="game.js"></script>
+    <script>
+        // =====================================================================
+        // Minimal test runner (zero dependencies)
+        // =====================================================================
+        const output = document.getElementById('output');
+        const summaryEl = document.getElementById('summary');
+        let passed = 0;
+        let failed = 0;
+        let currentSection = '';
+
+        function section(name) {
+            currentSection = name;
+            const div = document.createElement('div');
+            div.className = 'section';
+            div.textContent = name;
+            output.appendChild(div);
+        }
+
+        function assert(description, condition) {
+            const div = document.createElement('div');
+            div.className = 'result';
+            if (condition) {
+                div.innerHTML = '<span class="pass">PASS</span> ' + description;
+                passed++;
+            } else {
+                div.innerHTML = '<span class="fail">FAIL</span> ' + description;
+                failed++;
+            }
+            output.appendChild(div);
+        }
+
+        function assertEqual(description, actual, expected) {
+            assert(description + ' (expected: ' + expected + ', got: ' + actual + ')', actual === expected);
+        }
+
+        // =====================================================================
+        // Tests
+        // =====================================================================
+
+        // --- getSpeed ---
+        section('getSpeed — Speed Tier Lookup');
+
+        assertEqual('Score 0 returns 150ms', getSpeed(0), 150);
+        assertEqual('Score 3 returns 150ms', getSpeed(3), 150);
+        assertEqual('Score 5 returns 130ms', getSpeed(5), 130);
+        assertEqual('Score 9 returns 130ms', getSpeed(9), 130);
+        assertEqual('Score 10 returns 110ms', getSpeed(10), 110);
+        assertEqual('Score 15 returns 110ms', getSpeed(15), 110);
+        assertEqual('Score 20 returns 90ms', getSpeed(20), 90);
+        assertEqual('Score 100 returns 90ms', getSpeed(100), 90);
+
+        // --- checkCollision ---
+        section('checkCollision — Wall Collision');
+
+        // Set up known grid dimensions
+        const savedCols = cols;
+        const savedRows = rows;
+        cols = 20;
+        rows = 15;
+        state.snake = [{ x: 5, y: 5 }, { x: 4, y: 5 }, { x: 3, y: 5 }];
+
+        assert('No collision in open space', !checkCollision({ x: 10, y: 10 }));
+        assert('Collision with left wall (x=-1)', checkCollision({ x: -1, y: 5 }));
+        assert('Collision with right wall (x=cols)', checkCollision({ x: 20, y: 5 }));
+        assert('Collision with top wall (y=-1)', checkCollision({ x: 5, y: -1 }));
+        assert('Collision with bottom wall (y=rows)', checkCollision({ x: 5, y: 15 }));
+        assert('No collision at boundary edge (x=0)', !checkCollision({ x: 0, y: 5 }));
+        assert('No collision at boundary edge (x=cols-1)', !checkCollision({ x: 19, y: 5 }));
+
+        section('checkCollision — Self Collision');
+
+        assert('Collision with body segment [1]', checkCollision({ x: 4, y: 5 }));
+        assert('Collision with body segment [2]', checkCollision({ x: 3, y: 5 }));
+        assert('No collision with head position itself (head is index 0 in array)', checkCollision({ x: 5, y: 5 }));
+        assert('No collision with empty space near snake', !checkCollision({ x: 5, y: 6 }));
+
+        // Restore
+        cols = savedCols;
+        rows = savedRows;
+
+        // --- spawnFood ---
+        section('spawnFood — Food Placement');
+
+        cols = 20;
+        rows = 15;
+        state.snake = [{ x: 5, y: 5 }];
+
+        spawnFood();
+        assert('Food spawned with valid x', state.food.x >= 0 && state.food.x < 20);
+        assert('Food spawned with valid y', state.food.y >= 0 && state.food.y < 15);
+        assert('Food not on snake', !(state.food.x === 5 && state.food.y === 5));
+
+        // Test with larger snake
+        state.snake = [];
+        for (let i = 0; i < 10; i++) {
+            state.snake.push({ x: i, y: 0 });
+        }
+        spawnFood();
+        const onSnake = state.snake.some(s => s.x === state.food.x && s.y === state.food.y);
+        assert('Food not on any snake segment (10-length snake)', !onSnake);
+
+        // Restore
+        cols = savedCols;
+        rows = savedRows;
+
+        // --- init ---
+        section('init — State Reset');
+
+        cols = 20;
+        rows = 15;
+        state.score = 50;
+        state.highScore = 100;
+        state.gameOver = true;
+
+        init();
+
+        assertEqual('Score reset to 0', state.score, 0);
+        assertEqual('highScore preserved (not reset by init)', state.highScore, 100);
+        assertEqual('gameOver reset to false', state.gameOver, false);
+        assertEqual('paused reset to false', state.paused, false);
+        assertEqual('Snake length is INITIAL_SNAKE_LENGTH', state.snake.length, INITIAL_SNAKE_LENGTH);
+        assertEqual('Snake head at center x', state.snake[0].x, Math.floor(20 / 2));
+        assertEqual('Snake head at center y', state.snake[0].y, Math.floor(15 / 2));
+        assertEqual('Direction is right (x=1)', state.direction.x, 1);
+        assertEqual('Direction is right (y=0)', state.direction.y, 0);
+        assertEqual('Speed reset to initial', state.speed, 150);
+
+        // Restore
+        cols = savedCols;
+        rows = savedRows;
+
+        // --- Direction Buffer (180-degree prevention) ---
+        section('Direction Buffer — 180-degree Reversal Prevention');
+
+        cols = 20;
+        rows = 15;
+        init();
+        state.started = true;
+        state.direction = { x: 1, y: 0 }; // moving right
+
+        // Simulate pressing Left (opposite of Right) — should be rejected
+        handleInput({ key: 'ArrowLeft', preventDefault: () => {} });
+        assert('Left rejected when moving right (nextDirection.x != -1)',
+            state.nextDirection.x !== -1);
+
+        // Simulate pressing Up (perpendicular) — should be accepted
+        state.direction = { x: 1, y: 0 };
+        state.nextDirection = { x: 1, y: 0 };
+        handleInput({ key: 'ArrowUp', preventDefault: () => {} });
+        assertEqual('Up accepted when moving right (nextDirection.y)', state.nextDirection.y, -1);
+
+        // Moving down, press up — should be rejected
+        state.direction = { x: 0, y: 1 };
+        state.nextDirection = { x: 0, y: 1 };
+        handleInput({ key: 'ArrowUp', preventDefault: () => {} });
+        assert('Up rejected when moving down', state.nextDirection.y !== -1);
+
+        // Moving down, press left — should be accepted
+        state.direction = { x: 0, y: 1 };
+        state.nextDirection = { x: 0, y: 1 };
+        handleInput({ key: 'ArrowLeft', preventDefault: () => {} });
+        assertEqual('Left accepted when moving down', state.nextDirection.x, -1);
+
+        // Restore
+        cols = savedCols;
+        rows = savedRows;
+
+        // --- update ---
+        section('update — Snake Movement');
+
+        cols = 20;
+        rows = 15;
+        init();
+        state.direction = { x: 1, y: 0 };
+        state.nextDirection = { x: 1, y: 0 };
+        const headBefore = { ...state.snake[0] };
+        const lengthBefore = state.snake.length;
+
+        // Place food far away so we test non-eating movement
+        state.food = { x: 0, y: 0 };
+        update();
+
+        assertEqual('Head moved right by 1', state.snake[0].x, headBefore.x + 1);
+        assertEqual('Head y unchanged', state.snake[0].y, headBefore.y);
+        assertEqual('Length unchanged (no food eaten)', state.snake.length, lengthBefore);
+
+        section('update — Eating Food');
+
+        init();
+        state.direction = { x: 1, y: 0 };
+        state.nextDirection = { x: 1, y: 0 };
+        // Place food directly in front of snake head
+        state.food = { x: state.snake[0].x + 1, y: state.snake[0].y };
+        const lengthBeforeEat = state.snake.length;
+
+        update();
+
+        assertEqual('Snake grew by 1 after eating', state.snake.length, lengthBeforeEat + 1);
+        assertEqual('Score incremented', state.score, 1);
+
+        section('update — Game Over on Wall');
+
+        init();
+        // Place snake at right edge, moving right
+        state.snake[0] = { x: cols - 1, y: 7 };
+        state.direction = { x: 1, y: 0 };
+        state.nextDirection = { x: 1, y: 0 };
+        state.food = { x: 0, y: 0 };
+
+        update();
+
+        assertEqual('Game over when hitting right wall', state.gameOver, true);
+
+        // Restore
+        cols = savedCols;
+        rows = savedRows;
+
+        // =====================================================================
+        // Summary
+        // =====================================================================
+        const total = passed + failed;
+        summaryEl.textContent = passed + '/' + total + ' tests passed' + (failed > 0 ? ' (' + failed + ' failed)' : '');
+        summaryEl.style.backgroundColor = failed === 0 ? '#00ff8822' : '#ff475722';
+        summaryEl.style.color = failed === 0 ? '#00ff88' : '#ff4757';
+
+        // Also log to console for automated checking
+        console.log('TEST RESULTS: ' + passed + '/' + total + ' passed');
+        if (failed > 0) {
+            console.error(failed + ' tests FAILED');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+/* Reset */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body — dark background, center content */
+body {
+    background-color: #0f0f1a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Game container — relative positioning for overlays */
+#game-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Canvas */
+#gameCanvas {
+    display: block;
+    background-color: #1a1a2e;
+    border-radius: 4px;
+}
+
+/* Overlay base — covers entire container */
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(15, 15, 26, 0.85);
+    border-radius: 4px;
+    z-index: 10;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+/* Hidden state for overlays */
+.overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Overlay content — centered text block */
+.overlay-content {
+    text-align: center;
+    color: #ffffff;
+}
+
+.overlay-content h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #00ff88;
+    text-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+}
+
+.overlay-content p {
+    font-size: 1.1rem;
+    color: #cccccc;
+    margin-bottom: 0.5rem;
+}
+
+.overlay-content .hint {
+    font-size: 0.9rem;
+    color: #888888;
+    margin-top: 1.5rem;
+}

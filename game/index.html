@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+
+        <!-- Start Screen Overlay -->
+        <div id="start-overlay" class="overlay">
+            <div class="overlay-content">
+                <h1>Snake</h1>
+                <p>Use arrow keys or WASD to move</p>
+                <p class="hint">Press any arrow key to start</p>
+            </div>
+        </div>
+
+        <!-- Game Over Overlay -->
+        <div id="gameover-overlay" class="overlay hidden">
+            <div class="overlay-content">
+                <h1>Game Over</h1>
+                <p>Score: <span id="final-score">0</span></p>
+                <p>Best: <span id="final-high-score">0</span></p>
+                <p class="hint">Press Enter to restart</p>
+            </div>
+        </div>
+
+        <!-- Pause Overlay -->
+        <div id="pause-overlay" class="overlay hidden">
+            <div class="overlay-content">
+                <h1>Paused</h1>
+                <p class="hint">Press Space to resume</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
