@@ -1,0 +1,197 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GMPDE Blueprint",
+  "description": "Canonical project state for the Governed Multi-Agent Project Development Engine",
+  "type": "object",
+  "required": ["schema_version", "project_id", "project_name", "created_at", "updated_at", "current_phase", "phase_status", "problem_statement", "decisions", "pipeline_version"],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0.0" },
+    "project_id": { "type": "string" },
+    "project_name": { "type": "string" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "current_phase": { "type": "integer", "minimum": 0, "maximum": 8 },
+    "phase_status": {
+      "type": "object",
+      "required": ["0", "1", "2", "3", "4", "freeze_gate", "5", "6", "7", "8"],
+      "properties": {
+        "0": { "$ref": "#/$defs/phase_state" },
+        "1": { "$ref": "#/$defs/phase_state" },
+        "2": { "$ref": "#/$defs/phase_state" },
+        "3": { "$ref": "#/$defs/phase_state" },
+        "4": { "$ref": "#/$defs/phase_state" },
+        "freeze_gate": { "type": "string", "enum": ["locked", "awaiting_approval", "approved", "rejected"] },
+        "5": { "$ref": "#/$defs/phase_state" },
+        "6": { "$ref": "#/$defs/phase_state" },
+        "7": { "$ref": "#/$defs/phase_state" },
+        "8": { "$ref": "#/$defs/phase_state" }
+      }
+    },
+    "problem_statement": {
+      "type": "object",
+      "properties": {
+        "raw_idea": { "type": "string" },
+        "problem": { "type": "string" },
+        "target_user": { "type": "string" },
+        "constraints": { "type": "array", "items": { "type": "string" } },
+        "exclusions": { "type": "array", "items": { "type": "string" } },
+        "success_metrics": { "type": "array", "items": { "type": "string" } },
+        "scope_in": { "type": "array", "items": { "type": "string" } },
+        "scope_out": { "type": "array", "items": { "type": "string" } },
+        "open_questions": { "type": "array", "items": { "type": "string" } },
+        "blockers": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "research": {
+      "type": "object",
+      "properties": {
+        "feasibility": { "type": "string", "enum": ["high", "medium", "low"] },
+        "recommended_approach": { "type": "array", "items": { "type": "string" } },
+        "risks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "risk": { "type": "string" },
+              "mitigation": { "type": "string" }
+            },
+            "required": ["risk", "mitigation"]
+          }
+        },
+        "tech_evaluation": {
+          "type": "object",
+          "properties": {
+            "approved": { "type": "array", "items": { "type": "string" } },
+            "concerns": { "type": "array", "items": { "type": "string" } },
+            "rejected": { "type": "array", "items": { "type": "string" } }
+          }
+        }
+      }
+    },
+    "architecture": {
+      "type": "object",
+      "properties": {
+        "components": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "responsibility": { "type": "string" },
+              "location": { "type": "string" }
+            },
+            "required": ["name", "responsibility"]
+          }
+        },
+        "data_flow": { "type": "string" },
+        "api_contracts": { "type": "object" },
+        "data_models": { "type": "object" },
+        "tech_stack": { "type": "array", "items": { "type": "string" } },
+        "rejected_alternatives": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "option": { "type": "string" },
+              "reason": { "type": "string" }
+            }
+          }
+        },
+        "implementation_order": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "project_plan": {
+      "type": "object",
+      "properties": {
+        "milestones": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "tasks": { "type": "array", "items": { "type": "string" } }
+            },
+            "required": ["id", "name", "tasks"]
+          }
+        },
+        "tasks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "description": { "type": "string" },
+              "files": { "type": "array", "items": { "type": "string" } },
+              "depends_on": { "type": "array", "items": { "type": "string" } },
+              "acceptance": { "type": "string" },
+              "status": { "type": "string", "enum": ["pending", "in_progress", "complete", "failed"] },
+              "token_budget": { "type": "string", "enum": ["low", "medium", "high"] }
+            },
+            "required": ["id", "description", "status"]
+          }
+        }
+      }
+    },
+    "reviews": {
+      "type": "object",
+      "properties": {
+        "research": { "$ref": "#/$defs/review" },
+        "architecture": { "$ref": "#/$defs/review" },
+        "plan": { "$ref": "#/$defs/review" }
+      }
+    },
+    "freeze_gate": {
+      "type": "object",
+      "properties": {
+        "status": { "type": "string", "enum": ["locked", "approved", "rejected"] },
+        "approved_at": { "type": ["string", "null"], "format": "date-time" },
+        "user_notes": { "type": ["string", "null"] }
+      },
+      "required": ["status"]
+    },
+    "decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "pattern": "^DL-\\d{3}$" },
+          "title": { "type": "string" },
+          "phase": { "type": "integer" },
+          "date": { "type": "string", "format": "date" },
+          "agent": { "type": "string" },
+          "context": { "type": "string" },
+          "decision": { "type": "string" },
+          "alternatives": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "option": { "type": "string" },
+                "reason_rejected": { "type": "string" }
+              }
+            }
+          },
+          "consequences": { "type": "array", "items": { "type": "string" } },
+          "reverses": { "type": ["string", "null"] }
+        },
+        "required": ["id", "title", "phase", "decision"]
+      }
+    },
+    "pipeline_version": { "type": "string" }
+  },
+  "$defs": {
+    "phase_state": {
+      "type": "string",
+      "enum": ["pending", "in_progress", "complete", "failed"]
+    },
+    "review": {
+      "type": "object",
+      "properties": {
+        "verdict": { "type": "string", "enum": ["pass", "pass_with_notes", "fail"] },
+        "issues": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["verdict"]
+    }
+  }
+}

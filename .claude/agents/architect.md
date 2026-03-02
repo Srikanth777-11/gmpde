@@ -92,5 +92,8 @@ Key transformations: [brief list]
 - Design more than what's needed for the current task
 - Produce output longer than 800 words
 
+## Decision Log (MANDATORY)
+After producing the ADR, append ALL key decisions to `docs/decision-log.md` using the structured template. Every technology choice, pattern selection, and rejected alternative must be logged. This is institutional memory — without it, future phases lose context.
+
 ## Memory Updates
 Record: architectural decisions made, patterns chosen, module boundaries defined.

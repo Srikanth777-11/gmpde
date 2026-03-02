@@ -1,0 +1,32 @@
+[project]
+name = "gmpde"
+version = "1.0.0"
+description = "Governed Multi-Agent Project Development Engine — A framework that uses AI agents to design, plan, and build software projects through strict governance phases."
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.9"
+dependencies = [
+  "typer>=0.12.0",
+  "jsonschema>=4.0.0"
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=7.0",
+  "pytest-cov"
+]
+
+[project.scripts]
+gmpde = "gmpde.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/yourusername/gmpde"
+Documentation = "https://github.com/yourusername/gmpde#readme"
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["gmpde*"]

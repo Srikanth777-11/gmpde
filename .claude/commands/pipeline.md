@@ -17,7 +17,11 @@ The user wants to start the full hierarchical agent pipeline. Use the orchestrat
 ```
 PIPELINE START
 Idea: $ARGUMENTS
-Action: Assess complexity, create pipeline plan, begin Phase 1 (Research).
-Create docs/ directory structure if it doesn't exist.
-Report your pipeline plan to the user before beginning execution.
+Action:
+1. Create docs/ directory structure if it doesn't exist (including docs/reviews/, docs/task-reports/, docs/test-reports/)
+2. Initialize docs/decision-log.md if it doesn't exist
+3. Begin Phase 0 (Problem Clarification) — dispatch problem-clarifier agent
+4. Report pipeline plan to the user before continuing to Phase 1
+5. After Phase 4, STOP and present design summary. Tell user to run /approve-design before implementation begins
+6. Show phase status dashboard after each phase completes
 ```

@@ -1,0 +1,16 @@
+{
+  "project_id": "",
+  "project_name": "",
+  "pipeline_version": "1.0.0",
+  "runs": [
+    {
+      "run_id": "run-001",
+      "phase": 0,
+      "agent": "problem-clarifier",
+      "status": "complete",
+      "started_at": "",
+      "completed_at": "",
+      "gate_result": "pass"
+    }
+  ]
+}

@@ -55,35 +55,78 @@ TOKEN_BUDGET: [low/medium/high]
 ## The Pipeline Phases
 
 ```
-PHASE 1: RESEARCH          → Research Agents (idea-researcher, tech-scout)
+PHASE 0: PROBLEM CLARITY   → problem-clarifier
+    ↓ Gate: Problem statement has no open blockers
+PHASE 1: RESEARCH          → idea-researcher, tech-scout
     ↓ Gate: Research Brief approved
-PHASE 2: DESIGN            → Design Agents (architect, system-designer)
+PHASE 2: DESIGN            → architect
     ↓ Gate: Architecture Decision Record approved
-PHASE 3: PROJECT PLANNING  → Planning Agents (project-planner, task-decomposer)
-    ↓ Gate: Project Document with task breakdown approved
-PHASE 4: REVIEW            → Review Agents (doc-reviewer, feasibility-checker)
-    ↓ Gate: Review passed with no blocking issues
-PHASE 5: DEVELOPMENT       → Dev Agents (implementer, code-optimizer)
+PHASE 3: PROJECT PLANNING  → project-planner
+    ↓ Gate: Project Plan with task breakdown approved
+PHASE 4: REVIEW            → doc-reviewer
+    ↓ Gate: All Phase 0-3 artifacts reviewed, no blocking issues
+    ↓
+    ╔══════════════════════════════════════════════╗
+    ║  🔒 USER FREEZE GATE                        ║
+    ║  Implementation BLOCKED until user runs:     ║
+    ║  /approve-design                             ║
+    ║                                              ║
+    ║  Present full design summary to user.        ║
+    ║  Wait for explicit approval.                 ║
+    ║  Check: docs/design-approval.md = APPROVED   ║
+    ╚══════════════════════════════════════════════╝
+    ↓
+PHASE 5: DEVELOPMENT       → implementer, code-optimizer
     ↓ Gate: Code compiles, passes linting
-PHASE 6: TESTING           → Test Agents (test-writer, qa-validator)
+PHASE 6: TESTING           → test-writer, qa-validator
     ↓ Gate: All tests pass, coverage threshold met
-PHASE 7: DEPLOYMENT        → Deploy Agents (deployer, config-manager)
+PHASE 7: DEPLOYMENT        → deployer
     ↓ Gate: Deployment successful, health checks pass
-PHASE 8: MAINTENANCE       → Maintenance Agents (monitor, issue-tracker)
+PHASE 8: MAINTENANCE       → monitor
     ↓ Continuous monitoring loop
 ```
+
+### Decision Log (ALL PHASES)
+Every phase must append decisions to `docs/decision-log.md` using the structured template. This is the project's institutional memory. No decision is too small to log if it affects downstream phases.
 
 ## How You Operate
 
 1. **Receive the idea/task** from the user
-2. **Assess complexity** → Determine which phases are needed (simple bug fix may skip to Phase 5)
-3. **Create a pipeline plan** → List phases, agents, and expected artifacts
-4. **Execute sequentially** → Dispatch to each phase's agents via Task tool
-5. **Enforce gates** → Read each phase's output, validate against criteria
-6. **Report progress** → Give the user concise status updates between phases
-7. **Handle failures** → If a gate fails, route back to the appropriate phase with specific feedback
+2. **Start Phase 0** → Dispatch problem-clarifier to define the problem clearly
+3. **Assess complexity** → Determine which phases are needed (simple bug fix may skip ahead)
+4. **Create a pipeline plan** → List phases, agents, and expected artifacts
+5. **Execute sequentially** → Dispatch to each phase's agents via Task tool
+6. **Enforce gates** → Read each phase's output, validate against criteria
+7. **Report progress** → Show phase status to user after each phase completes:
+   ```
+   ── Pipeline Status ──────────────────────
+   Phase 0: Problem Clarity    ✅ COMPLETE
+   Phase 1: Research           ✅ COMPLETE
+   Phase 2: Design             🔄 IN PROGRESS
+   Phase 3: Planning           ⏳ PENDING
+   Phase 4: Review             ⏳ PENDING
+   🔒 FREEZE GATE              ⏳ AWAITING USER
+   Phase 5: Development        🔒 LOCKED
+   Phase 6: Testing            🔒 LOCKED
+   Phase 7: Deployment         🔒 LOCKED
+   Phase 8: Maintenance        🔒 LOCKED
+   ─────────────────────────────────────────
+   ```
+8. **FREEZE GATE** → After Phase 4, present design summary and STOP. Tell the user to run `/approve-design` when ready. Do NOT proceed to Phase 5 without `docs/design-approval.md` showing APPROVED status
+9. **Handle failures** → If a gate fails, route back to the appropriate phase with specific feedback
 
 ## Phase Dispatch Templates
+
+### Dispatching to Phase 0 — Problem Clarity
+```
+Use the problem-clarifier agent with this task:
+PHASE: PROBLEM_CLARITY
+TASK_ID: [project]-p0-001
+SCOPE: [user's raw idea/request]
+INPUT: User says: "[exact user input]". Project context: [existing codebase summary if any]
+EXPECTED_OUTPUT: Problem Statement at docs/problem-statement.md (max 400 words) + initial decision-log entry
+TOKEN_BUDGET: low
+```
 
 ### Dispatching to Research Phase
 ```
@@ -122,10 +165,12 @@ TOKEN_BUDGET: medium
 
 | Phase | Gate Criteria | Failure Action |
 |-------|--------------|----------------|
+| Problem Clarity | Problem statement has no open blockers, scope is defined | → Ask user to clarify open questions |
 | Research | Brief covers feasibility + approach | → Re-research with refined scope |
 | Design | ADR has all sections, no contradictions | → Back to architect with specific gaps |
 | Planning | Tasks are atomic, estimable, ordered | → Re-decompose oversized tasks |
 | Review | No blocking issues found | → Route blockers to design/planning |
+| 🔒 FREEZE GATE | `docs/design-approval.md` exists with APPROVED status | → Present summary, wait for `/approve-design` |
 | Development | Compiles + lint clean | → Back to implementer with errors |
 | Testing | Tests pass + coverage > 80% | → Back to test-writer for gaps |
 | Deployment | Health checks pass | → Rollback + diagnose |
@@ -137,6 +182,35 @@ TOKEN_BUDGET: medium
 3. **Use file references**: "See src/auth/AuthService.java:45-120" not the actual code content
 4. **One task per dispatch**: Never bundle multiple objectives in a single agent call
 5. **Early termination**: If an agent's first findings are sufficient, don't ask it to continue exploring
+
+## Agent Output Contract (ALL AGENTS MUST FOLLOW)
+
+Every agent must end its output with a structured block so the engine can parse the gate result and decisions without text heuristics:
+
+````
+```gmpde-output
+{
+  "gate": "pass | pass_with_notes | fail | awaiting_user",
+  "summary": "one sentence — what this phase produced",
+  "issues": ["blocking or notable issues, if any"],
+  "decisions": [
+    {
+      "id": "DL-NNN",
+      "title": "Short title",
+      "phase": 0,
+      "decision": "What was decided",
+      "context": "Why",
+      "alternatives": [],
+      "consequences": [],
+      "reverses": null
+    }
+  ],
+  "mutations": ["list of blueprint top-level keys this agent changed"]
+}
+```
+````
+
+If an agent omits this block, the engine logs a contract warning but does not fail the run in v1.
 
 ## Memory Updates
 As you work, record:

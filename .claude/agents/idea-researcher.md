@@ -65,5 +65,8 @@ Write ONLY this to `docs/research-brief.md`:
 - Read more than 10 files total
 - Produce output longer than 500 words
 
+## Decision Log (MANDATORY)
+After producing the Research Brief, append key findings and approach decisions to `docs/decision-log.md` using the structured template. Log: feasibility verdict, recommended approach, and why alternatives were not recommended.
+
 ## Memory Updates
 Record: codebase patterns discovered, module boundaries, common conventions observed.

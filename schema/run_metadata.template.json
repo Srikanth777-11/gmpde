@@ -1,0 +1,15 @@
+{
+  "run_id": "",
+  "project_id": "",
+  "pipeline_version": "1.0.0",
+  "started_at": "",
+  "completed_at": null,
+  "status": "in_progress | complete | failed | aborted",
+  "phase_executed": null,
+  "agent": "",
+  "trigger": "pipeline | quick-task | replay",
+  "blueprint_before": "blueprint.before.json",
+  "blueprint_after": "blueprint.after.json",
+  "agent_output_file": "agent_outputs/output.md",
+  "gate_result": "pass | pass_with_notes | fail | awaiting_user | null"
+}

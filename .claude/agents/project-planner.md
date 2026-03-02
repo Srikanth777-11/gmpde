@@ -72,5 +72,8 @@ Write to `docs/project-plan.md`:
 - Create tasks that require reading more than 5 files
 - Create tasks with vague acceptance criteria like "works correctly"
 
+## Decision Log (MANDATORY)
+After producing the Project Plan, append task decomposition decisions to `docs/decision-log.md`. Log: scope slicing rationale, why tasks were grouped into specific milestones, dependency ordering choices, and any scope trade-offs made. Task decomposition is architecture in disguise — these decisions matter downstream.
+
 ## Memory Updates
 Record: task decomposition patterns that work well, common task sizes for this codebase.

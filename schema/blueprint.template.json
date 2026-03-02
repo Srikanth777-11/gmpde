@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0.0",
+  "project_id": "",
+  "project_name": "",
+  "created_at": "",
+  "updated_at": "",
+  "current_phase": 0,
+  "phase_status": {
+    "0": "pending",
+    "1": "pending",
+    "2": "pending",
+    "3": "pending",
+    "4": "pending",
+    "freeze_gate": "locked",
+    "5": "pending",
+    "6": "pending",
+    "7": "pending",
+    "8": "pending"
+  },
+  "problem_statement": {
+    "raw_idea": "",
+    "problem": "",
+    "target_user": "",
+    "constraints": [],
+    "exclusions": [],
+    "success_metrics": [],
+    "scope_in": [],
+    "scope_out": [],
+    "open_questions": [],
+    "blockers": []
+  },
+  "research": {
+    "feasibility": "",
+    "recommended_approach": [],
+    "risks": [],
+    "tech_evaluation": {
+      "approved": [],
+      "concerns": [],
+      "rejected": []
+    }
+  },
+  "architecture": {
+    "components": [],
+    "data_flow": "",
+    "api_contracts": {},
+    "data_models": {},
+    "tech_stack": [],
+    "rejected_alternatives": [],
+    "implementation_order": []
+  },
+  "project_plan": {
+    "milestones": [],
+    "tasks": [],
+    "parallel_opportunities": []
+  },
+  "reviews": {
+    "research": { "verdict": "", "issues": [] },
+    "architecture": { "verdict": "", "issues": [] },
+    "plan": { "verdict": "", "issues": [] }
+  },
+  "freeze_gate": {
+    "status": "locked",
+    "approved_at": null,
+    "user_notes": null
+  },
+  "decisions": [],
+  "pipeline_version": "1.0.0",
+  "config": {
+    "strict_contracts": false
+  }
+}
